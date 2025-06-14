@@ -1,0 +1,14 @@
+name: On SDK Update Dispatch
+
+on:
+  repository_dispatch:
+    types: [sdk-updated]
+
+jobs:
+  log-dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo SDK payload
+        run: |
+          echo "Repository dispatch received!"
+          echo "Payload SDK: ${{ github.event.client_payload.sdk }}"
