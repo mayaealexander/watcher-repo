@@ -16,8 +16,8 @@ jobs:
           echo "Updated files received:"
           echo "${{ github.event.client_payload.updated_files }}"
           
-    #  - name: Run pytest on changed files
-      #  run: |
-        #  FILES=$(echo "$UPDATED_FILES" | tr "," " ")
-      #    echo "Running pytest on: $FILES"
-      #    pytest $FILES
+      - name: Run pytest on changed files
+        run: |
+          FILES=$(echo "$UPDATED_FILES" | tr "," " ")
+          echo "Running pytest on: $FILES"
+          pytest $FILES
