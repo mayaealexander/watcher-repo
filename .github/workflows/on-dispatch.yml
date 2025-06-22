@@ -31,7 +31,7 @@ jobs:
       # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
       - name: Extract updated sample files from dispatch payload
         run: |
-          echo "${{ toJson(github.event.client_payload.updated_files) }}" \
+          echo '${{ toJson(github.event.client_payload.updated_files) }}' \
           | jq -r '.[]' > updated_files.txt
 
 
