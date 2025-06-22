@@ -24,8 +24,9 @@ jobs:
     steps:
 
       # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
-      - name: Parse changed file paths
-        run: echo "${{ github.event.client_payload.updated_files }}" > updated_files.txt
+      - name: Extract updated sample files from dispatch payload
+        run: |
+          echo "${{ github.event.client_payload.updated_files }}" | jq -r '.[]' | grep '\.py$' > updated_files.txt
 
       # Checks the current (watcher) repo so we can run the script
       - name: Checkout Watcher Repo
@@ -48,7 +49,7 @@ jobs:
       # Installs the OpenAI Python SDK (can add other dependencies used in the script here or switch to pip install -r requirements.txt)
       - name: Install dependencies
         run: pip install openai
-
+    
       # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
       - name: Run AI commenting script
         run: |
