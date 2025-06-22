@@ -34,10 +34,14 @@ jobs:
           jq -r '.client_payload.updated_files[]' "$GITHUB_EVENT_PATH" \
             > updated_files.txt
 
+      - name: List files in workspace
+        run: ls -la
 
       # Checks the current (watcher) repo so we can run the script
       - name: Checkout Watcher Repo
         uses: actions/checkout@v3
+        with:
+          clean: false
 
       # Checks out the SDK repo (Python version) into a folder called python-sdk
       - name: Checkout SDK Repo
@@ -46,6 +50,7 @@ jobs:
           repository: mayaealexander/azure-sdk-for-python
           token: ${{ secrets.SDK_REPO_PAT }}
           path: python-sdk
+          clean: false
 
       # Sets up Python 3.10 on the runner 
       - name: Set up Python
