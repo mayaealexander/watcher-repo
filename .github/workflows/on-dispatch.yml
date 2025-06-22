@@ -32,10 +32,8 @@ jobs:
       - name: Extract updated sample files from dispatch payload
         run: |
           echo '${{ toJson(github.event.client_payload.updated_files) }}' > raw_payload.json
-          jq -r '.[]' raw_payload.json | grep '\.py$' > updated_files.txt || echo "" > updated_files.txt
-          echo "Saved updated files:"
+          jq -r '.[]' raw_payload.json | grep '\.py$' > updated_files.txt || true
           cat updated_files.txt
-
 
 
       # Checks the current (watcher) repo so we can run the script
@@ -59,10 +57,16 @@ jobs:
       # Installs the OpenAI Python SDK (can add other dependencies used in the script here or switch to pip install -r requirements.txt)
       - name: Install dependencies
         run: pip install openai
-    
+
+      - name: List files in workspace
+        run: ls -la
+
+        
       # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
       - name: Run AI commenting script
         run: |
+          ls -la
+          cat updated_files.txt || echo "File not found"
           python generate_comments.py updated_files.txt python-sdk
 
 
