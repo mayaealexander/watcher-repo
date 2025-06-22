@@ -33,7 +33,9 @@ jobs:
         run: |
           echo '${{ toJson(github.event.client_payload.updated_files) }}' > raw_payload.json
           jq -r '.[]' raw_payload.json | grep '\.py$' > updated_files.txt || echo "" > updated_files.txt
+          echo "Saved updated files:"
           cat updated_files.txt
+
 
 
       # Checks the current (watcher) repo so we can run the script
