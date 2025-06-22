@@ -16,53 +16,53 @@ jobs:
           echo "Updated files received:"
           echo "${{ github.event.client_payload.updated_files }}"
 
-  # # JOB 2: Adds inline comments to newly changed sample files
-  # comment-samples:
-  #   runs-on: ubuntu-latest
-  #   permissions: #Grants permission to write to the SDK repo, which is required to push comments
-  #     contents: write
-  #   steps:
+  # JOB 2: Adds inline comments to newly changed sample files
+  comment-samples:
+    runs-on: ubuntu-latest
+    permissions: #Grants permission to write to the SDK repo, which is required to push comments
+      contents: write
+    steps:
 
-  #     # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
-  #     - name: Parse changed file paths
-  #       run: echo "${{ github.event.client_payload.updated_files }}" > updated_files.txt
+      # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
+      - name: Parse changed file paths
+        run: echo "${{ github.event.client_payload.updated_files }}" > updated_files.txt
 
-  #     # Checks the current (watcher) repo so we can run the script
-  #     - name: Checkout Watcher Repo
-  #       uses: actions/checkout@v3
+      # Checks the current (watcher) repo so we can run the script
+      - name: Checkout Watcher Repo
+        uses: actions/checkout@v3
 
-  #     # Checks out the SDK repo (Python version) into a folder called python-sdk
-  #     - name: Checkout SDK Repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: mayaealexander/azure-sdk-for-python
-  #         token: ${{ secrets.SDK_REPO_PAT }}
-  #         path: python-sdk
+      # Checks out the SDK repo (Python version) into a folder called python-sdk
+      - name: Checkout SDK Repo
+        uses: actions/checkout@v3
+        with:
+          repository: mayaealexander/azure-sdk-for-python
+          token: ${{ secrets.SDK_REPO_PAT }}
+          path: python-sdk
 
-  #     # Sets up Python 3.10 on the runner 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: '3.10'
+      # Sets up Python 3.10 on the runner 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-  #     # Installs the OpenAI Python SDK (can add other dependencies used in the script here or switch to pip install -r requirements.txt)
-  #     - name: Install dependencies
-  #       run: pip install openai
+      # Installs the OpenAI Python SDK (can add other dependencies used in the script here or switch to pip install -r requirements.txt)
+      - name: Install dependencies
+        run: pip install openai
 
-  #     # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
-  #     - name: Run AI commenting script
-  #       run: |
-  #         python generate_comments.py updated_files.txt python-sdk
+      # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
+      - name: Run AI commenting script
+        run: |
+          python generate_comments.py updated_files.txt python-sdk
 
 
-  #     # Moves into the SDK repo folder, sets a noreply email for the commit, stages any file changes, and commits ONLY if there are changes, then pushes to main branch
-  #     - name: Commit and push changes to SDK repo
-  #       run: |
-  #         cd python-sdk
-  #         git config user.name "AI Comment Assistant"
-  #         git config user.email "mayaealexander@users.noreply.github.com"
-  #         git add .
-  #         git diff --cached --quiet || git commit -m "Add inline comments via AI assistant"
-  #         git push origin main
+      # Moves into the SDK repo folder, sets a noreply email for the commit, stages any file changes, and commits ONLY if there are changes, then pushes to main branch
+      - name: Commit and push changes to SDK repo
+        run: |
+          cd python-sdk
+          git config user.name "AI Comment Assistant"
+          git config user.email "mayaealexander@users.noreply.github.com"
+          git add .
+          git diff --cached --quiet || git commit -m "Add inline comments via AI assistant"
+          git push origin main
 
       
