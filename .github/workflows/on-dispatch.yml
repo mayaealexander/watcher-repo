@@ -23,11 +23,18 @@ jobs:
       contents: write
     steps:
 
+      #Debug step
+      - name: Print dispatch payload
+        run: |
+          echo "Payload: ${{ toJson(github.event.client_payload) }}"
+
       # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
       - name: Extract updated sample files from dispatch payload
         run: |
-          echo '${{ toJson(github.event.client_payload.updated_files) }}' \
-            | jq -r '.[]' | grep '\.py$' > updated_files.txt || echo "No .py files found."
+          echo '${{ toJson(github.event.client_payload.updated_files) }}' > raw_payload.json
+          jq -r '.[]' raw_payload.json | grep '\.py$' > updated_files.txt || echo "" > updated_files.txt
+          cat updated_files.txt
+
 
       # Checks the current (watcher) repo so we can run the script
       - name: Checkout Watcher Repo
