@@ -31,8 +31,9 @@ jobs:
       # Logs the incoming updated file list and saves the file paths to a txt file for the generate_comments.py script to use
       - name: Extract updated sample files from dispatch payload
         run: |
-          jq -r '.client_payload.updated_files[]' "$GITHUB_EVENT_PATH" \
-            > updated_files.txt
+          jq -r '.client_payload.updated_files[]' "$GITHUB_EVENT_PATH" > /tmp/updated_files.txt
+          echo "Updated files:"
+          cat /tmp/updated_files.txt
 
       - name: List files in workspace
         run: ls -la
@@ -69,9 +70,7 @@ jobs:
       # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
       - name: Run AI commenting script
         run: |
-          ls -la
-          cat updated_files.txt || echo "File not found"
-          python generate_comments.py updated_files.txt python-sdk
+          python watcher-repo/generate_comments.py /tmp/updated_files.txt python-sdk
 
 
       # Moves into the SDK repo folder, sets a noreply email for the commit, stages any file changes, and commits ONLY if there are changes, then pushes to main branch
