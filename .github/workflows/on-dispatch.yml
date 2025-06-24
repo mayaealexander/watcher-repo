@@ -59,9 +59,9 @@ jobs:
         with:
           python-version: '3.10'
 
-      # Installs the OpenAI Python SDK (can add other dependencies used in the script here or switch to pip install -r requirements.txt)
+      
       - name: Install dependencies
-        run: pip install openai
+        run: pip install requests
 
       - name: List files in workspace
         run: ls -la
