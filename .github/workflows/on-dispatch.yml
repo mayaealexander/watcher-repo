@@ -69,8 +69,12 @@ jobs:
         
       # Runs the commenting script, passing 'updated_files.txt' (containing the paths of changed files) and 'python-sdk' (the folder with the SDK repo lives)
       - name: Run AI commenting script
-        run: |
-          python generate_comments_foundry.py /tmp/updated_files.txt python-sdk
+        run: python generate_comments_foundry.py /tmp/updated_files.txt python-sdk
+        env:
+          AZURE_AI_FOUNDRY_ENDPOINT: ${{ secrets.AZURE_AI_FOUNDRY_ENDPOINT }}
+          AZURE_AI_FOUNDRY_KEY: ${{ secrets.AZURE_AI_FOUNDRY_KEY }}
+          AZURE_AI_FOUNDRY_DEPLOYMENT_NAME: ${{ secrets.AZURE_AI_FOUNDRY_DEPLOYMENT_NAME }}
+
 
 
       # Moves into the SDK repo folder, sets a noreply email for the commit, stages any file changes, and commits ONLY if there are changes, then pushes to main branch
