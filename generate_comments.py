@@ -17,7 +17,8 @@ def call_openai_to_comment(code, filename):
         f"If comments already exist, preserve them and append useful explanations.\n\n"
         f"Code:\n\n{code}\n\n# Add inline comments below:"
     )
-
+    print(f"\nCalling OpenAI for file: {filename}...")
+    
     response = openai.ChatCompletion.create(
         engine=DEPLOYMENT_NAME,
         messages=[
@@ -27,9 +28,12 @@ def call_openai_to_comment(code, filename):
         temperature=0.4,
     )
 
-    return response['choices'][0]['message']['content']
+    result = response['choices'][0]['message']['content']
+    print(f"LLM response for {filename}:\n{result[:500]}...\n")  # Print first 500 chars for brevity
+    return result
 
 def process_file(filepath):
+    print(f"Reading file: {filepath}")
     with open(filepath, 'r') as f:
         code = f.read()
 
@@ -37,6 +41,8 @@ def process_file(filepath):
 
     with open(filepath, 'w') as f:
         f.write(commented_code)
+
+    print(f"Finished writing comments to: {filepath}")
 
 def main():
     if len(sys.argv) != 3:
@@ -46,16 +52,20 @@ def main():
     files_list_path = sys.argv[1]
     sdk_repo_path = sys.argv[2]
 
+    print(f"\n Reading list of changed files from: {files_list_path}")
+
     with open(files_list_path, 'r') as f:
         changed_files = [line.strip() for line in f if line.endswith('.py')]
 
+    print(f"\nDetected {len(changed_files)} .py files to process:\n" + "\n".join(changed_files))
+    
     for relative_path in changed_files:
         full_path = os.path.join(sdk_repo_path, relative_path)
         if os.path.exists(full_path):
             print(f"Processing {relative_path}...")
             process_file(full_path)
         else:
-            print(f"Warning: {relative_path} not found!")
+            print(f"Skipping {relative_path} - file not found at {full_path}")
 
 if __name__ == "__main__":
     main()
