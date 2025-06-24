@@ -1,14 +1,15 @@
 import os
-import openai
 import sys
+from openai import AzureOpenAI
 
-# Azure OpenAI configuration
-openai.api_type = "azure"
-openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-openai.api_version = "2023-05-15"
-openai.api_key = os.getenv("AZURE_OPENAI_KEY") 
+# Initialize Azure OpenAI client
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_KEY"),
+    api_version="2023-05-15",
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
+)
 
-DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME") 
+DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 def call_openai_to_comment(code, filename):
     prompt = (
@@ -18,9 +19,9 @@ def call_openai_to_comment(code, filename):
         f"Code:\n\n{code}\n\n# Add inline comments below:"
     )
     print(f"\nCalling OpenAI for file: {filename}...")
-    
-    response = openai.ChatCompletion.create(
-        engine=DEPLOYMENT_NAME,
+
+    response = client.chat.completions.create(
+        model=DEPLOYMENT_NAME,
         messages=[
             {"role": "system", "content": "You are a helpful Python documentation assistant."},
             {"role": "user", "content": prompt}
@@ -28,8 +29,8 @@ def call_openai_to_comment(code, filename):
         temperature=0.4,
     )
 
-    result = response['choices'][0]['message']['content']
-    print(f"LLM response for {filename}:\n{result[:500]}...\n")  # Print first 500 chars for brevity
+    result = response.choices[0].message.content
+    print(f"LLM response for {filename}:\n{result[:500]}...\n")
     return result
 
 def process_file(filepath):
@@ -52,13 +53,13 @@ def main():
     files_list_path = sys.argv[1]
     sdk_repo_path = sys.argv[2]
 
-    print(f"\n Reading list of changed files from: {files_list_path}")
+    print(f"\nReading list of changed files from: {files_list_path}")
 
     with open(files_list_path, 'r') as f:
         changed_files = [line.strip() for line in f if line.strip().endswith('.py')]
 
     print(f"\nDetected {len(changed_files)} .py files to process:\n" + "\n".join(changed_files))
-    
+
     for relative_path in changed_files:
         full_path = os.path.join(sdk_repo_path, relative_path)
         if os.path.exists(full_path):
