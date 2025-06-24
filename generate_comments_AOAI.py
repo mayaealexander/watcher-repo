@@ -3,12 +3,12 @@ import sys
 import requests
 
 API_KEY = os.getenv("AZURE_OPENAI_KEY")
-ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT").rstrip("/") + "/"  #  https://foundym4zr.cognitiveservices.azure.com/
+ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT").rstrip("/") + "/"  
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")  # gpt-4o
 
 # Function to make the API call; builds URL for calling Azure OpenAI's gpt-4o; headers authenticate the request with the AOAI key
 def call_openai_to_comment(code: str, filename: str) -> str:
-    url = f"{ENDPOINT}openai/deployments/{DEPLOYMENT_NAME}/chat/completions?api-version=2025-01-01"
+    url = f"{ENDPOINT}openai/deployments/{DEPLOYMENT_NAME}/chat/completions?api-version=2025-01-01-preview"
     headers = {
         "Content-Type": "application/json",
         "api-key": API_KEY
