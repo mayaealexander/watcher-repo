@@ -76,7 +76,6 @@ jobs:
           AZURE_OPENAI_DEPLOYMENT_NAME: ${{ secrets.AZURE_OPENAI_DEPLOYMENT_NAME }}
 
 
-
       # Moves into the SDK repo folder, sets a noreply email for the commit, stages any file changes, and commits ONLY if there are changes, then pushes to main branch
       - name: Commit and push changes to SDK repo
         run: |
