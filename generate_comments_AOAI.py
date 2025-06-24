@@ -3,7 +3,7 @@ import sys
 import requests
 
 API_KEY = os.getenv("AZURE_OPENAI_KEY")
-ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  #  https://foundym4zr.cognitiveservices.azure.com/
+ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT").rstrip("/") + "/"  #  https://foundym4zr.cognitiveservices.azure.com/
 DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")  # gpt-4o
 
 # Function to make the API call; builds URL for calling Azure OpenAI's gpt-4o; headers authenticate the request with the AOAI key
