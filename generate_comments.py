@@ -55,7 +55,7 @@ def main():
     print(f"\n Reading list of changed files from: {files_list_path}")
 
     with open(files_list_path, 'r') as f:
-        changed_files = [line.strip() for line in f if line.endswith('.py')]
+        changed_files = [line.strip() for line in f if line.strip().endswith('.py')]
 
     print(f"\nDetected {len(changed_files)} .py files to process:\n" + "\n".join(changed_files))
     
