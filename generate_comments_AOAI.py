@@ -1,72 +1,62 @@
 import os
 import sys
-from openai import AzureOpenAI
+import requests
 
-# Initialize Azure OpenAI client
-client = AzureOpenAI(
-    api_key=os.getenv("AZURE_OPENAI_KEY"),
-    api_version="2023-05-15",
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-)
+API_KEY = os.getenv("AZURE_OPENAI_KEY")
+ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  #  https://foundym4zr.cognitiveservices.azure.com/
+DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")  # gpt-4o
 
-DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+# Function to make the API call; builds URL for calling Azure OpenAI's gpt-4o; headers authenticate the request with the AOAI key
+def call_openai_to_comment(code: str, filename: str) -> str:
+    url = f"{ENDPOINT}openai/deployments/{DEPLOYMENT_NAME}/chat/completions?api-version=2023-05-15"
+    headers = {
+        "Content-Type": "application/json",
+        "api-key": API_KEY
+    }
+    prompt = f"""Add helpful inline comments to the following Python file, especially explaining what each part of the code is doing and why it might matter. Do not remove any code. File: {filename}\n\n{code}"""
 
-def call_openai_to_comment(code, filename):
-    prompt = (
-        f"You are an AI assistant helping developers understand their Python sample code.\n"
-        f"Add helpful inline comments to the following code file: {filename}.\n"
-        f"If comments already exist, preserve them and append useful explanations.\n\n"
-        f"Code:\n\n{code}\n\n# Add inline comments below:"
-    )
-    print(f"\nCalling OpenAI for file: {filename}...")
-
-    response = client.chat.completions.create(
-        model=DEPLOYMENT_NAME,
-        messages=[
-            {"role": "system", "content": "You are a helpful Python documentation assistant."},
+    # Standard chat format payload. max_tokens=1000 can be increased if files are long
+    payload = {
+        "messages": [
+            {"role": "system", "content": "You are a helpful coding assistant who comments Python code clearly."},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.4,
-    )
+        "temperature": 0.3,
+        "max_tokens": 1000,
+    }
 
-    result = response.choices[0].message.content
-    print(f"LLM response for {filename}:\n{result[:500]}...\n")
-    return result
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        print("Request failed:", response.status_code)
+        print(response.text)
+        raise Exception("OpenAI API call failed.")
 
-def process_file(filepath):
-    print(f"Reading file: {filepath}")
-    with open(filepath, 'r') as f:
+def process_file(filepath: str, sdk_repo_folder: str):
+    full_path = os.path.join(sdk_repo_folder, filepath)
+    print(f"Reading file: {full_path}")
+    with open(full_path, "r") as f:
         code = f.read()
 
     commented_code = call_openai_to_comment(code, filepath)
 
-    with open(filepath, 'w') as f:
+    with open(full_path, "w") as f:
         f.write(commented_code)
 
-    print(f"Finished writing comments to: {filepath}")
-
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python generate_comments.py updated_files.txt python-sdk")
-        sys.exit(1)
+    updated_files_list = sys.argv[1]  # Path to /tmp/updated_files.txt
+    sdk_repo_folder = sys.argv[2]     # Usually "python-sdk"
 
-    files_list_path = sys.argv[1]
-    sdk_repo_path = sys.argv[2]
+    print(f"Reading list of changed files from: {updated_files_list}")
 
-    print(f"\nReading list of changed files from: {files_list_path}")
+    with open(updated_files_list, "r") as f:
+        files = [line.strip() for line in f if line.strip().endswith(".py")]
 
-    with open(files_list_path, 'r') as f:
-        changed_files = [line.strip() for line in f if line.strip().endswith('.py')]
-
-    print(f"\nDetected {len(changed_files)} .py files to process:\n" + "\n".join(changed_files))
-
-    for relative_path in changed_files:
-        full_path = os.path.join(sdk_repo_path, relative_path)
-        if os.path.exists(full_path):
-            print(f"Processing {relative_path}...")
-            process_file(full_path)
-        else:
-            print(f"Skipping {relative_path} - file not found at {full_path}")
+    print(f"Detected {len(files)} .py files to process:")
+    for fpath in files:
+        print(fpath)
+        process_file(fpath, sdk_repo_folder)
 
 if __name__ == "__main__":
     main()
