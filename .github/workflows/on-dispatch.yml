@@ -1,4 +1,4 @@
-  name: On SDK Update Dispatch
+name: On SDK Update Dispatch
 
 # Listens for a webhook event of type sdk-updated sent from the SDK repo. When the notify-watcher.yml file dispatches this event, this workflow runs
 on:
@@ -85,5 +85,3 @@ jobs:
           git add .
           git diff --cached --quiet || git commit -m "Add inline comments via AI assistant"
           git push origin main
-
-      
