@@ -14,7 +14,7 @@ def call_openai_to_comment(code: str, filename: str) -> str:
         "api-key": API_KEY
     }
     
-prompt = f"""
+    prompt = f"""
 You are a code-commenting assistant.
 
 Task:
@@ -27,15 +27,15 @@ Task:
 ### END FILE
 """
 
-# Standard chat format payload. max_tokens=1000 can be increased if files are long
-payload = {
-    "messages": [
-         {"role": "system", "content": "You are a helpful coding assistant who comments Python code clearly."},
-        {"role": "user", "content": prompt}
-     ],
-     "temperature": 0.3,
-     "max_tokens": 1000,
- }
+    # Standard chat format payload. max_tokens=1000 can be increased if files are long
+    payload = {
+        "messages": [
+            {"role": "system", "content": "You are a helpful coding assistant who comments Python code clearly."},
+            {"role": "user", "content": prompt}
+         ],
+         "temperature": 0.3,
+         "max_tokens": 1000,
+     }
 
     response = requests.post(url, headers=headers, json=payload)
     if response.status_code == 200:
