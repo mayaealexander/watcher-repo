@@ -13,14 +13,20 @@ def call_openai_to_comment(code: str, filename: str) -> str:
         "Content-Type": "application/json",
         "api-key": API_KEY
     }
-prompt = f"""Add helpful inline comments to the Python file below. Explain what each part does and why it matters. Keep all original code intact.  
+    
+prompt = f"""
+You are a code-commenting assistant.
 
-Return only the commented code; do NOT wrap it in backticks, do NOT include markdown, and do NOT add any extra text.  
-Start your response with the first line of code.
+Task:
+1. Insert brief, helpful #-style comments into the Python code below.  
+2. Each comment must be shorter than the line or block it explains.  
+3. **Return ONLY the updated source code** — no markdown fences, no extra text.
 
-File: {filename}
+### BEGIN FILE
+{code}
+### END FILE
+"""
 
-{code}"""
     # Standard chat format payload. max_tokens=1000 can be increased if files are long
     payload = {
         "messages": [
